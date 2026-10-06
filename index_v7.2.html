@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#05090b">
+<title>Vinted Manager V7.2</title>
+<style>
+:root{
+  --bg:#05090b;--panel:#0b1519;--panel2:#0e1c21;--panel3:#12242a;--line:rgba(255,255,255,.08);
+  --text:#f4f7f8;--muted:#8d9ca2;--cyan:#16e0d0;--green:#20d978;--orange:#ffad4d;
+  --red:#ff5f6d;--blue:#4aa8ff;--purple:#a982ff;--shadow:0 18px 55px rgba(0,0,0,.34)
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:
+radial-gradient(circle at 18% 0%,rgba(22,224,208,.07),transparent 28%),
+radial-gradient(circle at 90% 10%,rgba(74,168,255,.05),transparent 24%),var(--bg);
+color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:flex;min-height:100vh}.sidebar{width:245px;position:fixed;inset:0 auto 0 0;padding:22px 15px;background:rgba(8,18,22,.94);
+border-right:1px solid var(--line);z-index:20;backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:11px;padding:8px 12px 25px;font-weight:850;font-size:20px;letter-spacing:-.6px}
+.brand-mark{width:35px;height:35px;border-radius:11px;display:grid;place-items:center;background:rgba(22,224,208,.12);
+border:1px solid rgba(22,224,208,.35);color:var(--cyan);box-shadow:0 0 28px rgba(22,224,208,.1)}
+.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#9aa8ad;text-align:left;padding:12px 13px;border-radius:12px;
+display:flex;align-items:center;gap:12px;font-weight:650;transition:.18s}.nav button:hover{background:rgba(255,255,255,.04);color:#fff}
+.nav button.active{color:var(--cyan);background:linear-gradient(90deg,rgba(22,224,208,.18),rgba(22,224,208,.05));box-shadow:inset 3px 0 0 var(--cyan)}
+.nav-icon{width:22px;height:22px;display:grid;place-items:center}.nav-icon svg,.mobile-nav svg{width:20px;height:20px;fill:none;stroke:currentColor;
+stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.nav button.active .nav-icon{filter:drop-shadow(0 0 7px rgba(22,224,208,.28))}
+.main{margin-left:245px;width:calc(100% - 245px);padding:22px clamp(18px,3vw,42px) 42px}
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:24px}.search{flex:1;max-width:620px;display:flex;align-items:center;gap:10px;
+background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:11px 15px;color:var(--muted)}
+.search input{width:100%;border:0;outline:0;background:transparent;color:#fff}.actions{display:flex;gap:9px;align-items:center}
+.icon-btn,.primary,.ghost,.danger{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:12px;padding:10px 13px}
+.primary{background:var(--cyan);color:#03100f;border-color:transparent;font-weight:850}.ghost:hover,.icon-btn:hover{border-color:rgba(22,224,208,.35)}
+.danger{color:#ff8c96}.sync-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:999px;
+font-size:11px;font-weight:800;border:1px solid var(--line);background:var(--panel);color:#aeb9bd}.sync-dot{width:7px;height:7px;border-radius:50%;background:#69767a}
+.sync-badge.ok{color:var(--green)}.sync-badge.ok .sync-dot{background:var(--green);box-shadow:0 0 10px rgba(32,217,120,.45)}
+.sync-badge.off{color:var(--orange)}.sync-badge.off .sync-dot{background:var(--orange)}
+.view{display:none}.view.active{display:block}.page-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin:5px 0 20px}
+.eyebrow{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:1.5px;font-weight:850}
+h1{font-size:clamp(27px,3vw,38px);margin:5px 0 6px;letter-spacing:-1.3px}h2{margin:0;font-size:18px;letter-spacing:-.4px}
+p{color:var(--muted);line-height:1.55;margin:6px 0}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:linear-gradient(145deg,rgba(16,34,40,.96),rgba(9,19,23,.96));border:1px solid var(--line);border-radius:18px;padding:18px;min-height:130px;box-shadow:var(--shadow)}
+.stat.accent{border-color:rgba(22,224,208,.18);box-shadow:0 12px 45px rgba(22,224,208,.05)}
+.stat-label{color:#9da9ad;font-weight:650}.stat-value{font-size:29px;font-weight:850;margin-top:10px;letter-spacing:-1px}.stat-sub{font-size:12px;margin-top:7px;color:var(--green)}
+.stat-sub.warn{color:var(--orange)}.two{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-top:14px}
+.card{background:linear-gradient(145deg,rgba(14,29,34,.97),rgba(8,17,21,.97));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.pill{font-size:12px;padding:6px 10px;border-radius:999px;
+background:rgba(22,224,208,.12);color:var(--cyan);font-weight:800}.chart-wrap{height:260px;position:relative}
+.chart-wrap svg{width:100%;height:100%;overflow:visible}.chart-grid{stroke:rgba(255,255,255,.07);stroke-width:1}.chart-line{fill:none;stroke:var(--cyan);stroke-width:3;
+stroke-linecap:round;stroke-linejoin:round}.chart-area{fill:url(#areaGrad)}.axis{fill:#6f7d82;font-size:11px}
+.donut-box{display:flex;align-items:center;justify-content:center;gap:20px;min-height:260px}.donut{width:185px;height:185px;border-radius:50%;position:relative}
+.donut:after{content:"";position:absolute;inset:33px;background:#0b171b;border-radius:50%;border:1px solid var(--line)}.legend{display:grid;gap:10px}
+.legend-row{display:flex;align-items:center;gap:8px;color:#aab5b9;font-size:12px}.dot{width:9px;height:9px;border-radius:50%}
+.section{margin-top:24px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.item-card{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}
+.item-img{height:auto;aspect-ratio:1/1;background:#101719;display:grid;place-items:center;overflow:hidden}.item-img img{width:100%;height:100%;object-fit:contain;background:#101719}
+.placeholder{font-size:40px;color:#44545a}.item-body{padding:13px}.item-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-meta{font-size:12px;color:var(--muted);margin-top:4px}.item-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.price{font-weight:850}.badge{font-size:11px;padding:5px 8px;border-radius:999px;font-weight:800}.badge.active{background:rgba(32,217,120,.12);color:var(--green)}
+.badge.draft{background:rgba(255,173,77,.12);color:var(--orange)}.badge.sold{background:rgba(74,168,255,.12);color:var(--blue)}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap}.toolbar input,.toolbar select,.field input,.field select,.field textarea{background:#081216;border:1px solid var(--line);color:#fff;border-radius:11px;padding:11px 12px;outline:0;width:100%}
+.toolbar input:focus,.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(22,224,208,.45)}
+.empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field{display:grid;gap:7px}.field label{font-size:13px;color:#aeb9bd;font-weight:700}
+.field.full{grid-column:1/-1}.field textarea{min-height:100px;resize:vertical}.dropzone{border:1px dashed rgba(22,224,208,.25);background:rgba(22,224,208,.025);border-radius:16px;padding:21px;text-align:center;display:grid;gap:5px;place-items:center;transition:.18s}
+.dropzone.drag{border-color:var(--cyan);background:rgba(22,224,208,.08)}.drop-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+color:var(--cyan);background:rgba(22,224,208,.1);font-size:25px}.dropzone strong{font-size:15px}.dropzone span{font-size:12px;color:var(--muted)}
+.dropzone input{display:none}.import-result{margin-top:14px;border:1px solid rgba(22,224,208,.15);border-radius:15px;background:#081316;padding:15px}
+.import-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.import-row{display:flex;gap:14px;align-items:center}
+.auto-photo{width:110px;aspect-ratio:1/1;border-radius:13px;background:#101719;overflow:hidden;flex:none}.auto-photo img{width:100%;height:100%;object-fit:contain}
+.detected-name{font-weight:850;font-size:17px}.detected-price{font-size:22px;font-weight:900;margin-top:8px}.import-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.notice{padding:12px 14px;border-radius:12px;background:rgba(22,224,208,.06);border:1px solid rgba(22,224,208,.12);color:#a9b8bb;font-size:13px;line-height:1.5}
+.periods{display:flex;gap:6px;flex-wrap:wrap}.periods button{border:1px solid var(--line);background:transparent;color:#9eaaae;padding:7px 11px;border-radius:9px;font-size:12px;font-weight:750}
+.periods button.active{background:rgba(22,224,208,.12);color:var(--cyan);border-color:rgba(22,224,208,.2)}
+.range{width:100%;appearance:none;height:6px;background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan) var(--fill,20%),#2a3032 var(--fill,20%),#2a3032 100%);
+border-radius:999px;outline:0;margin-top:14px}.range::-webkit-slider-thumb{appearance:none;width:25px;height:25px;border-radius:50%;background:#05090b;border:2px solid #222;box-shadow:0 0 0 2px rgba(255,255,255,.06),0 0 22px rgba(22,224,208,.32)}
+.range::-moz-range-thumb{width:21px;height:21px;border-radius:50%;background:#05090b;border:2px solid #222;box-shadow:0 0 22px rgba(22,224,208,.32)}
+.calculator{max-width:900px;margin:auto}.slider-row{margin:25px 0}.slider-label{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+.slider-label span:first-child{color:#aeb9bd;font-weight:750}.slider-value{font-size:22px;font-weight:900}.result-grid{border-top:1px solid var(--line);margin-top:28px;padding-top:22px;display:grid;gap:13px}
+.result-line{display:flex;justify-content:space-between;gap:20px;color:#adb8bb}.result-line strong{color:#fff;font-size:19px}
+.profit-box{margin-top:8px;padding:19px 21px;border-radius:17px;background:#242424;border:1px solid rgba(255,255,255,.05)}
+.profit-title{color:#b7bec0;font-weight:750}.profit-number{font-size:42px;font-weight:900;color:var(--green);letter-spacing:-1.5px;margin:5px 0}
+.profit-box.negative .profit-number{color:var(--red)}.profit-note{font-size:12px;color:#949da0}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.mini{padding:15px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025)}
+.mini small{color:var(--muted)}.mini strong{display:block;font-size:20px;margin-top:5px}.table-wrap{overflow:auto}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.table th{font-size:12px;color:#7f8c90}.table td{font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.64);backdrop-filter:blur(10px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}.modal-card{width:min(980px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#0d1b20,#071014);border:1px solid rgba(22,224,208,.18);border-radius:20px;padding:20px;box-shadow:0 30px 100px rgba(0,0,0,.55)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.close{border:1px solid var(--line);background:transparent;color:#fff;border-radius:10px;padding:8px 11px}
+.modal-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:14px}.preview-square{aspect-ratio:1/1;border-radius:15px;background:#101719;border:1px solid var(--line);overflow:hidden;display:grid;place-items:center}
+.preview-square img{width:100%;height:100%;object-fit:contain}.hidden{display:none!important}.inline-actions{display:flex;gap:9px;flex-wrap:wrap}
+.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.sync-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan);font-size:15px;word-break:break-all}
+.mobile-nav{display:none}
+.investment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.investment-card{background:linear-gradient(145deg,rgba(14,29,34,.97),rgba(8,17,21,.97));border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.investment-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.investment-name{font-weight:850;font-size:17px}.investment-meta{font-size:12px;color:var(--muted);margin-top:4px}.investment-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.investment-kpi{padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}.investment-kpi small{color:var(--muted);display:block}.investment-kpi strong{display:block;margin-top:4px;font-size:17px}.progress{height:8px;background:#263034;border-radius:999px;overflow:hidden;margin-top:14px}.progress>div{height:100%;background:var(--cyan);border-radius:999px}.category-row{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:end;margin-top:8px}.category-row input{background:#081216;border:1px solid var(--line);color:#fff;border-radius:11px;padding:10px 12px;outline:0;width:100%}.category-row button{height:41px}.investment-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.investment-status{font-size:11px;padding:5px 8px;border-radius:999px;font-weight:800}.investment-status.active{background:rgba(255,173,77,.12);color:var(--orange)}.investment-status.recovered{background:rgba(32,217,120,.12);color:var(--green)}
+@media(max-width:1050px){.investment-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.investment-grid{grid-template-columns:1fr}.category-row{grid-template-columns:1fr 90px auto}}
+.toast{position:fixed;right:20px;bottom:20px;background:#122126;color:#fff;border:1px solid rgba(22,224,208,.2);padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);
+z-index:130;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
+@media(max-width:1050px){.grid4,.cards{grid-template-columns:repeat(2,1fr)}.two,.modal-layout{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}}
+@media(max-width:720px){
+ body{padding-bottom:72px}.sidebar{display:none}.main{margin:0;width:100%;padding:15px 13px 28px}.topbar{margin-bottom:18px}.search{max-width:none}.actions .icon-btn{display:none}
+ .sync-badge{display:none}.mobile-nav{display:flex;position:fixed;z-index:30;bottom:0;left:0;right:0;height:66px;background:rgba(6,13,16,.96);border-top:1px solid var(--line);
+ backdrop-filter:blur(18px);justify-content:space-around;padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+ .mobile-nav button{border:0;background:transparent;color:#78868a;font-size:10px;font-weight:750;display:grid;place-items:center;gap:3px;min-width:56px;padding:6px 8px;border-radius:12px}
+ .mobile-nav button.active{color:var(--cyan);background:rgba(22,224,208,.08)}.page-head{align-items:flex-start}.grid4,.cards,.form-grid,.settings-grid{grid-template-columns:1fr}
+ .stat{min-height:108px}.two{grid-template-columns:1fr}.chart-wrap{height:230px}.donut-box{min-height:225px}.donut{width:150px;height:150px}.donut:after{inset:27px}
+ .import-row{align-items:flex-start}.auto-photo{width:95px}.modal{padding:10px}.modal-card{padding:15px;max-height:94vh}.calculator{max-width:none}
+ .slider-value{font-size:20px}.result-line strong{font-size:17px}.profit-number{font-size:37px}.mini-grid{grid-template-columns:1fr}
+}
+
+.auth-overlay{position:fixed;inset:0;background:rgba(5,10,12,.92);backdrop-filter:blur(18px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}.auth-overlay.open{display:flex}.auth-card{width:min(430px,100%);background:#12191b;border:1px solid var(--line);border-radius:24px;padding:25px;box-shadow:0 25px 80px rgba(0,0,0,.45)}.auth-card h2{margin:0 0 8px}.auth-card p{color:var(--muted);font-size:13px;line-height:1.55}.auth-tabs{display:flex;gap:6px;background:#0b1113;padding:5px;border-radius:12px;margin:18px 0}.auth-tabs button{flex:1;border:0;background:transparent;color:var(--muted);padding:9px;border-radius:9px;font-weight:750}.auth-tabs button.active{background:#20292c;color:#fff}.auth-error{color:#ff8c96;font-size:12px;min-height:18px;margin-top:8px}.user-pill{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--muted)}.category-tabs{display:flex;gap:8px;margin:0 0 16px;overflow:auto}.category-tabs button{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 15px;border-radius:12px;font-weight:800;white-space:nowrap}.category-tabs button.active{color:#fff;border-color:rgba(22,224,208,.35);background:rgba(22,224,208,.08)}.status-action{border:0;background:rgba(32,217,120,.09);color:var(--green);padding:6px 9px;border-radius:9px;font-weight:800;font-size:11px}.status-action.sold{background:rgba(22,224,208,.08);color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">V</div><span>Vinted Manager</span></div>
+  <nav class="nav">
+    <button class="active" data-view="dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M10 20v-5h4v5"/></svg></span>Tableau de bord</button>
+    <button data-view="listings"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Mes annonces</button>
+    <button data-view="stats"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-7"/><path d="M3 19h18"/></svg></span>Statistiques</button>
+    <button data-view="calculator"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h8"/></svg></span>Calculateur</button>
+    <button data-view="investments"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M8 7V5h8v2M8 12h8M10 16h4"/></svg></span>Investissements</button>
+    <button data-view="goals"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v6h-6"/><path d="m12 8 3 3-3 3-3-3 3-3Z"/></svg></span>Objectifs</button>
+    <button data-view="settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13 .1-1-.1-1 2-1.5-2-3.4-2.3 1a8 8 0 0 0-1.7-1L14.7 3h-5l-.3 3.1a8 8 0 0 0-1.7 1l-2.3-1-2 3.4 2-1.5Z"/></svg></span>Paramètres</button>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="search">⌕ <input id="globalSearch" placeholder="Rechercher une annonce..."></div>
+    <div class="actions"><div id="userPill" class="user-pill" style="display:none"></div><div id="syncBadge" class="sync-badge"><span class="sync-dot"></span><span id="syncText">Synchronisation…</span></div>
+      <button class="primary" id="addTopBtn">+ Ajouter</button></div>
+  </div>
+
+  <section class="view active" id="view-dashboard">
+    <div class="page-head"><div><div class="eyebrow">Vue d'ensemble</div><h1>Mes annonces Vinted</h1><p>Tout ce qui concerne tes annonces, au même endroit.</p></div></div>
+    <div class="grid4" id="statsCards"></div>
+    <div class="two">
+      <div class="card"><div class="card-head"><h2>Évolution du bénéfice</h2><span class="pill" id="dashPeriod">30 jours</span></div><div class="chart-wrap" id="dashChart"></div></div>
+      <div class="card"><div class="card-head"><h2>Répartition des annonces</h2></div><div class="donut-box" id="listingDonut"></div></div>
+    </div>
+    <div class="section"><div class="section-head"><h2>Annonces récentes</h2><button class="ghost" data-view-jump="listings">Voir tout</button></div><div class="cards" id="recentCards"></div></div>
+  </section>
+
+  <section class="view" id="view-listings">
+    <div class="page-head"><div><div class="eyebrow">Catalogue</div><h1>Mes annonces</h1><p>Ajoute une capture Vinted et la fiche se construit automatiquement.</p></div><button class="primary" id="addListingBtn">+ Nouvelle annonce</button></div>
+    <div class="category-tabs" id="categoryTabs"><button class="active" data-category="for_sale">🟢 En vente <span id="countForSale"></span></button><button data-category="sold">🔵 Vendus <span id="countSold"></span></button></div><div class="toolbar" style="margin-bottom:14px"><input id="listingSearch" placeholder="Rechercher une annonce..."></div>
+    <div class="cards" id="listingCards"></div>
+  </section>
+
+  <section class="view" id="view-stats">
+    <div class="page-head"><div><div class="eyebrow">Analyse</div><h1>Statistiques</h1><p>Visualise les performances de tes annonces.</p></div></div>
+    <div class="card">
+      <div class="card-head"><h2>Performance</h2><div class="periods" id="periods"><button data-period="week">Semaine</button><button data-period="month" class="active">Mois</button><button data-period="year">Année</button><button data-period="all">Tout</button></div></div>
+      <div class="grid4" id="periodStats"></div>
+      <div class="chart-wrap" id="statsChart" style="margin-top:15px"></div>
+    </div>
+    <div class="two">
+      <div class="card"><div class="card-head"><h2>Ventes</h2></div><div id="salesBars" style="height:240px;display:flex;align-items:end;gap:9px;padding:20px 5px"></div></div>
+      <div class="card"><div class="card-head"><h2>Meilleures annonces</h2></div><div id="topItems"></div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-calculator">
+    <div class="page-head"><div><div class="eyebrow">Simulation</div><h1>Calculateur de marge</h1><p>Simule rapidement un lot et sa rentabilité.</p></div></div>
+    <div class="card calculator">
+      <div class="card-head"><h2>Simulateur de rentabilité</h2><span class="pill">Temps réel</span></div>
+      <div class="slider-row"><div class="slider-label"><span>Nombre d'articles</span><span class="slider-value" id="vQty">10</span></div><input class="range" id="rQty" type="range" min="1" max="100" value="10"></div>
+      <div class="slider-row"><div class="slider-label"><span>Coût par pièce (livraison comprise)</span><span class="slider-value" id="vCost">6 €</span></div><input class="range" id="rCost" type="range" min="0" max="50" step=".5" value="6"></div>
+      <div class="slider-row"><div class="slider-label"><span>Prix de vente moyen</span><span class="slider-value" id="vSell">15 €</span></div><input class="range" id="rSell" type="range" min="0" max="100" step=".5" value="15"></div>
+      <div class="slider-row"><div class="slider-label"><span>Part des pièces vendues</span><span class="slider-value" id="vSold">100%</span></div><input class="range" id="rSold" type="range" min="0" max="100" value="100"></div>
+      <div class="result-grid">
+        <div class="result-line"><span>Investissement initial</span><strong id="calcInvestment">60.00 €</strong></div>
+        <div class="result-line"><span>Chiffre d'affaires potentiel</span><strong id="calcRevenue">150.00 €</strong></div>
+        <div class="profit-box" id="profitBox"><div class="profit-title">Marge brute estimée</div><div class="profit-number" id="calcProfit">90.00 €</div><div class="profit-note">Avant frais supplémentaires, emballage, invendus et fiscalité. L'investissement couvre toutes les pièces achetées.</div></div>
+        <div class="mini-grid"><div class="mini"><small>Marge sur CA</small><strong id="calcMargin">60.0%</strong></div>
+          <div class="mini"><small>ROI</small><strong id="calcRoi">150.0%</strong></div><div class="mini"><small>Seuil de rentabilité</small><strong id="calcBreakEven">4 pièces</strong></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-investments">
+    <div class="page-head"><div><div class="eyebrow">Capital & rentabilité</div><h1>Investissements</h1><p>Gère tes achats par lots, même avant d'avoir créé les articles correspondants.</p></div><button class="primary" id="addInvestmentBtn">+ Nouvel investissement</button></div>
+    <div class="grid4" id="financialCards"></div>
+    <div class="section"><div class="section-head"><h2>Mes lots d'achat</h2><span class="pill" id="investmentCount">0 lot</span></div><div class="investment-grid" id="investmentCards"></div></div>
+  </section>
+
+  <section class="view" id="view-goals">
+    <div class="page-head"><div><div class="eyebrow">Objectifs</div><h1>Objectifs</h1><p>Une cible simple, une progression visible.</p></div></div>
+    <div class="card"><div class="form-grid"><div class="field"><label>Objectif de bénéfice (€)</label><input id="goalTarget" type="number" min="0" value="500"></div>
+      <div class="field"><label>Bénéfice actuel</label><input id="goalCurrent" type="text" readonly></div></div>
+      <div style="margin-top:18px"><div class="slider-label"><span>Progression</span><strong id="goalPct">0%</strong></div>
+      <div style="height:10px;background:#263034;border-radius:999px;margin-top:9px;overflow:hidden"><div id="goalBar" style="height:100%;width:0;background:var(--cyan);border-radius:999px;transition:.3s"></div></div></div></div>
+  </section>
+
+  <section class="view" id="view-settings">
+    <div class="page-head"><div><div class="eyebrow">Synchronisation</div><h1>Paramètres</h1><p>V8 utilise une base cloud centrale. Le téléphone et l’ordinateur partagent le même compte et la même source de vérité.</p></div></div>
+    <div class="settings-grid">
+      <div class="card"><div class="card-head"><h2>État de synchronisation</h2><span id="syncStatusPill" class="pill">Local</span></div>
+        <p id="syncDetails">Connexion au cloud…</p><div style="margin-top:12px"><small style="color:var(--muted)">Compte</small><div id="workspaceCode" class="sync-code" style="margin-top:6px"></div></div></div>
+      <div class="card"><div class="card-head"><h2>Compte & cloud</h2></div><p style="color:var(--muted);font-size:13px">La base centrale est Supabase : Auth pour le compte, Postgres pour les annonces et Storage pour les photos.</p><div class="inline-actions"><button class="ghost" id="openAuthBtn">Changer de compte / connexion</button></div></div><div class="card"><div class="card-head"><h2>Données</h2></div>
+        <div class="inline-actions"><button class="ghost" id="exportBtn">Exporter mes données</button><button class="ghost" id="resyncBtn">Actualiser depuis le cloud</button><button class="ghost" id="signOutBtn">Se déconnecter</button><button class="danger" id="clearBtn">Supprimer toutes les données</button></div>
+        <p style="margin-top:12px">Les anciens champs Marque/Taille sont conservés silencieusement dans les données migrées pour éviter une perte inutile, mais ils ne sont plus utilisés par l'interface V7.</p></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<nav class="mobile-nav">
+  <button class="active" data-view="dashboard"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M10 20v-5h4v5"/></svg>Accueil</button>
+  <button data-view="listings"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Annonces</button>
+  <button data-view="stats"><svg viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-7"/><path d="M3 19h18"/></svg>Stats</button>
+  <button data-view="calculator"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h8"/></svg>Calcul</button>
+  <button data-view="investments"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M8 7V5h8v2M8 12h8M10 16h4"/></svg>Invest.</button>
+  <button data-view="goals"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v6h-6"/><path d="m12 8 3 3-3 3-3-3 3-3Z"/></svg>Objectif</button>
+</nav>
+
+<div class="modal" id="listingModal">
+  <div class="modal-card">
+    <div class="modal-head"><div><div class="eyebrow">Annonce</div><h2 id="modalTitle">Nouvelle annonce</h2></div><button class="close" id="closeModal">✕</button></div>
+    <div class="modal-layout">
+      <div>
+        <div class="preview-square" id="photoPreview"><span class="placeholder">＋</span></div>
+        <div class="inline-actions" style="margin-top:10px"><button class="ghost" id="manualPhotoBtn">Choisir une photo</button><input id="photoInput" type="file" accept="image/*" hidden></div>
+        <div class="notice" style="margin-top:12px">Une capture Vinted peut servir directement de source. V7 extrait le titre et le prix depuis la zone basse de l'écran, puis isole la photo de l'annonce et la convertit en carré.</div>
+        <div class="dropzone" id="dropZone" style="margin-top:12px">
+          <div class="drop-icon">↑</div><strong>Dépose une capture Vinted</strong><span>ou touche pour sélectionner</span>
+          <input id="screenInput" type="file" accept="image/*"><label for="screenInput" class="primary" style="display:inline-flex;margin-top:6px">Choisir une capture</label>
+        </div>
+        <div class="import-result" id="importResult" hidden>
+          <div class="import-head"><strong>Annonce détectée</strong><span id="importConfidence" class="pill">Analyse</span></div>
+          <div class="import-row"><div id="autoPhotoPreview" class="auto-photo"></div>
+            <div><div id="detectedName" class="detected-name">—</div><div id="detectedPrice" class="detected-price">—</div><div id="detectedWarning" class="item-meta"></div></div></div>
+          <div class="import-actions"><button class="primary" id="applyDetectedBtn">Appliquer à la fiche</button><button class="ghost" id="replaceCaptureBtn">Remplacer la capture</button></div>
+        </div>
+        <div id="ocrStatus" style="margin-top:8px;color:var(--muted);font-size:12px"></div>
+      </div>
+      <div>
+        <div class="form-grid">
+          <div class="field full"><label>Nom de l'article</label><input id="fName" placeholder="Ex. Nike Air Force 1"></div>
+          <div class="field"><label>Prix de vente (€)</label><input id="fPrice" type="number" step=".01" min="0" placeholder="65"></div>
+          <div class="field"><label>Statut</label><select id="fStatus"><option value="for_sale">En vente</option><option value="sold">Vendue</option></select></div>
+          <div class="field"><label>Marque <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><input id="fBrand" placeholder="Ex. Nike"></div>
+          <div class="field"><label>Taille <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><input id="fSize" placeholder="Ex. M / 42"></div>
+          <div class="field"><label>Catégorie</label><input id="fCategory" placeholder="Ex. Chaussures"></div>
+          <div class="field"><label>État</label><input id="fCondition" placeholder="Ex. Très bon état"></div>
+          <div class="field"><label>Investissement lié <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><select id="fInvestment"><option value="">Aucun lot</option></select></div>
+          <div class="field full"><label>Description</label><textarea id="fDescription" placeholder="Description de l'annonce"></textarea></div>
+          <div class="field"><label>Coût d'achat (€) <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><input id="fBuy" type="number" step=".01" min="0" placeholder="10"></div>
+          <div class="field"><label>Frais (€) <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><input id="fFees" type="number" step=".01" min="0" placeholder="0"></div>
+          <div class="field full"><div class="inline-actions"><button class="primary" id="saveItem">Enregistrer</button><button class="ghost" id="resetForm">Réinitialiser</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="investmentModal">
+  <div class="modal-card">
+    <div class="modal-head"><div><div class="eyebrow">Lot d'achat</div><h2 id="investmentModalTitle">Nouvel investissement</h2></div><button class="close" id="closeInvestmentModal">✕</button></div>
+    <div class="form-grid">
+      <div class="field full"><label>Nom / description du lot</label><input id="iName" placeholder="Ex. Brocante octobre 2026"></div>
+      <div class="field"><label>Date d'achat</label><input id="iDate" type="date"></div>
+      <div class="field"><label>Montant total investi (€)</label><input id="iAmount" type="number" min="0" step=".01" placeholder="80"></div>
+      <div class="field"><label>Nombre total d'articles</label><input id="iCount" type="number" min="0" step="1" placeholder="10"></div>
+      <div class="field full"><label>Note <span style="color:var(--muted);font-weight:500">(optionnel)</span></label><textarea id="iNote" placeholder="Informations utiles sur le lot"></textarea></div>
+      <div class="field full">
+        <label>Répartition par catégorie</label>
+        <div id="investmentCategories"></div>
+        <button class="ghost" id="addInvestmentCategory" type="button" style="margin-top:9px">+ Ajouter une catégorie</button>
+      </div>
+      <div class="field full"><div class="inline-actions"><button class="primary" id="saveInvestment">Enregistrer</button><button class="ghost" id="resetInvestmentForm">Réinitialiser</button></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="auth-overlay" id="authOverlay"><div class="auth-card"><div class="eyebrow">Configuration Vinted Manager</div><h2 id="authTitle">Connecte ton cloud</h2><p id="authIntro">On commence par connecter ton projet Supabase. Tant que cette étape n'est pas validée, aucun compte ne peut être créé.</p><div class="notice" id="cloudSetup" style="margin:14px 0">Étape 1 — colle l'URL exacte de ton projet Supabase et ta clé <b>Publishable</b>. Tu peux les retrouver dans Supabase → Project Settings → API.</div><div class="form-grid" id="cloudConfigFields"><div class="field full"><label>URL du projet Supabase</label><input id="cfgUrl" inputmode="url" autocomplete="url" placeholder="https://xxxxxxxx.supabase.co"></div><div class="field full"><label>Clé Publishable</label><input id="cfgKey" autocomplete="off" placeholder="sb_publishable_..."></div><div class="field full"><button class="primary" id="saveCloudConfig">Tester et connecter le cloud</button></div><div class="field full"><button class="ghost" id="resetCloudConfig" type="button">Effacer la configuration enregistrée</button></div></div><div id="accountSection" style="display:none"><div class="notice" style="margin:14px 0">Étape 2 — ton cloud est connecté. Tu peux maintenant te connecter ou créer ton compte.</div><div class="auth-tabs"><button class="active" id="authLoginTab">Connexion</button><button id="authSignupTab">Créer un compte</button></div><div class="form-grid"><div class="field full"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="toi@email.com"></div><div class="field full"><label>Mot de passe</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div><div class="field full"><button class="primary" id="authSubmit">Se connecter</button></div></div></div><div class="auth-error" id="authError"></div><div class="notice" style="margin-top:12px">Tes annonces, statuts et photos sont privés et associés à ton compte.</div></div></div>
+
+
+<script>
+
+(function(){
+"use strict";
+
+const LOCAL_KEY="vinted_manager_v8_cache";
+const GOAL_KEY="vinted_manager_v8_goal";
+const SUPA_CFG_KEY="vinted_manager_v8_supabase";
+const POLL_MS=30000;
+let state={items:[],investments:[],goalTarget:500,updatedAt:0};
+let detectedDetails={brand:"",size:"",category:"",condition:"",description:""};
+let period="month", editingId=null, currentPhoto="", detected={photo:"",name:"",price:null,confidence:0,warning:""};detectedDetails={brand:"",size:"",category:"",condition:"",description:""};
+let cloud=null, currentUser=null, realtime=null, authMode="login", activeCategory="for_sale", pulling=false;
+const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelectorAll(s));
+function money(n){return Number(n||0).toLocaleString("fr-BE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function now(){return Date.now()}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2200)}
+function statusLabel(s){return s==="sold"?"Vendue":"En vente"}
+function normalizeStatus(s){return s==="sold"?"sold":"for_sale"}
+function makeId(){return (crypto?.randomUUID?.() || ("id-"+Date.now()+"-"+Math.random().toString(36).slice(2)))}
+
+function cacheLocal(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify(state));localStorage.setItem(GOAL_KEY,String(state.goalTarget||500))}catch(e){}}
+function loadCache(){try{const x=JSON.parse(localStorage.getItem(LOCAL_KEY)||"null");return x&&Array.isArray(x.items)?{...state,...x,investments:Array.isArray(x.investments)?x.investments:[]}:{...state,goalTarget:Number(localStorage.getItem(GOAL_KEY)||500),investments:[]}}catch(e){return {...state}}}
+function getConfig(){try{return JSON.parse(localStorage.getItem(SUPA_CFG_KEY)||"null")}catch(e){return null}}
+function setSyncUI(mode,detail){const b=$("#syncBadge"),t=$("#syncText"),p=$("#syncStatusPill");b.classList.remove("ok","off");if(mode==="ok"){b.classList.add("ok");t.textContent="Cloud synchronisé";p.textContent="Connecté";p.style.color="var(--green)";$("#syncDetails").textContent=detail||"Base centrale active."}else if(mode==="off"){b.classList.add("off");t.textContent="Hors ligne";p.textContent="Hors ligne";p.style.color="var(--orange)";$("#syncDetails").textContent=detail||"Connexion cloud indisponible."}else{t.textContent="Cloud…";p.textContent="Connexion…";p.style.color="var(--cyan)";$("#syncDetails").textContent=detail||"Connexion au cloud…"}}
+async function ensureSupabaseSdk(){
+  if(window.supabase?.createClient)return true;
+  return await new Promise(resolve=>{
+    const s=document.createElement("script");
+    let done=false;
+    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(ok)};
+    const timer=setTimeout(()=>finish(false),8000);
+    s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    s.async=true;
+    s.onload=()=>finish(Boolean(window.supabase?.createClient));
+    s.onerror=()=>finish(false);
+    document.head.appendChild(s);
+  });
+}
+async function initCloud(){
+  const cfg=getConfig();
+  if(!cfg?.url||!cfg?.key){cloud=null;currentUser=null;showAuth(true);return false}
+  const sdkReady=await ensureSupabaseSdk();
+  if(!sdkReady){setSyncUI("off","Le cloud est indisponible. L’application continue en mode local.");showAuth(false);return false}
+  try{
+    cloud=window.supabase.createClient(cfg.url,cfg.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data,error}=await cloud.auth.getSession();
+    if(error)throw error;
+    currentUser=data.session?.user||null;
+    cloud.auth.onAuthStateChange((_e,session)=>{currentUser=session?.user||null;updateAuthUI();if(currentUser)loadCloud(true);else showAuth(true)});
+    if(currentUser){updateAuthUI();await loadCloud(true);await refreshPhotoUrls();subscribeRealtime();return true}
+    showAuth(true);
+    return false;
+  }catch(e){console.error("Cloud init failed",e);setSyncUI("off",e.message||"Connexion cloud indisponible. Mode local actif.");showAuth(true);return false}
+}
+function showAuth(open){$("#authOverlay").classList.toggle("open",open);const c=getConfig();if(c){$("#cfgUrl").value=c.url||"";$("#cfgKey").value=c.key||""}syncSetupUI()}
+function syncSetupUI(){const cfg=!!getConfig();const connected=!!cloud;const account=$("#accountSection");const fields=$("#cloudConfigFields");const intro=$("#authIntro");const setup=$("#cloudSetup");if(fields)fields.style.display="grid";if(account)account.style.display=(connected&&!currentUser)?"block":"none";if(intro)intro.textContent=connected?"Le projet cloud est connecté. Il ne reste qu'à utiliser ton compte personnel.":"On commence par connecter ton projet Supabase. Tant que cette étape n'est pas validée, aucun compte ne peut être créé.";if(setup)setup.textContent=connected?"Étape 1 validée — Supabase répond correctement. Passe à l'étape 2 ci-dessous.":"Étape 1 — colle l'URL exacte de ton projet Supabase et ta clé Publishable."}
+function updateAuthUI(){const pill=$("#userPill");if(currentUser){pill.style.display="flex";pill.textContent=currentUser.email||"Compte connecté";showAuth(false);$("#workspaceCode").textContent=currentUser.id}else{pill.style.display="none";syncSetupUI();setSyncUI("off",cloud?"Cloud connecté — connecte-toi pour synchroniser tes annonces.":"Configuration cloud nécessaire.")}}
+async function loadCloud(allowMigration=false){if(!cloud||!currentUser)return false;setSyncUI("busy");pulling=true;try{const {data,error}=await cloud.from("vinted_items").select("*").eq("user_id",currentUser.id).order("updated_at",{ascending:false});if(error)throw error;const remote=(data||[]).map(dbToItem);const cached=loadCache();if(allowMigration && remote.length===0 && cached.items?.length){for(const item of cached.items)await upsertCloud(item,true);return await loadCloud(false)}state.items=remote;
+      try{await loadInvestmentsCloud(allowMigration)}catch(invErr){console.warn("Investments cloud unavailable",invErr);toast("Investissements cloud non disponibles : vérifie la migration SQL V7.2.");}
+      cacheLocal();renderAll();setSyncUI("ok","Base centrale active — données identiques sur tous tes appareils.");return true}catch(e){console.error(e);setSyncUI("off",e.message||"Impossible de charger la base cloud.");return false}finally{pulling=false}}
+function dbToItem(r){return normalizeItem({id:r.id,title:r.title,price:r.price,status:r.status==="sold"?"sold":"for_sale",photo:r.photo_path||"",description:r.description||"",brand:r.brand||"",size:r.size||"",category:r.category||"",condition:r.condition||"",buy:r.buy||0,fees:r.fees||0,investmentId:r.investment_id||"",date:r.created_at,soldDate:r.sold_at,updatedAt:new Date(r.updated_at).getTime()})}
+async function uploadPhoto(dataUrl,itemId){if(!dataUrl||!dataUrl.startsWith("data:"))return dataUrl||"";const m=dataUrl.match(/^data:(image\/[^;]+);base64,(.+)$/);if(!m)throw new Error("Image invalide");const bin=atob(m[2]);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);const ext=(m[1].split("/")[1]||"jpeg").replace("svg+xml","svg");const path=`${currentUser.id}/${itemId}.${ext}`;const {error}=await cloud.storage.from("vinted-images").upload(path,bytes,{contentType:m[1],upsert:true});if(error)throw error;return path}
+async function refreshPhotoUrls(){if(!cloud||!currentUser)return;await Promise.all(state.items.map(async i=>{if(i.photo&&!i.photo.startsWith("data:")&&!i.photo.startsWith("http")){const {data,error}=await cloud.storage.from("vinted-images").createSignedUrl(i.photo,3600);if(!error)i._photoUrl=data.signedUrl}}));renderAll()}
+
+async function upsertCloud(item,silent=false){if(!cloud||!currentUser)return false;const id=String(item.id||makeId());let photo=item.photo||"";if(photo.startsWith("data:"))photo=await uploadPhoto(photo,id);const payload={id,user_id:currentUser.id,title:item.title,price:Number(item.price||0),status:item.status==="sold"?"sold":"for_sale",description:item.description||"",brand:item.brand||"",size:item.size||"",category:item.category||"",condition:item.condition||"",buy:Number(item.buy||0),fees:Number(item.fees||0),investment_id:item.investmentId||null,photo_path:photo||null,created_at:item.date||new Date().toISOString(),sold_at:item.status==="sold"?(item.soldDate||new Date().toISOString()):null,updated_at:new Date().toISOString()};const {data,error}=await cloud.from("vinted_items").upsert(payload,{onConflict:"id"}).select().single();if(error)throw error;const local=dbToItem(data);const idx=state.items.findIndex(x=>String(x.id)===id);if(idx>=0)state.items[idx]=local;else state.items.push(local);cacheLocal();if(!silent)renderAll();return true}
+async function saveCloudItem(item){try{await upsertCloud(item);setSyncUI("ok","Modification enregistrée dans la base centrale.");return true}catch(e){console.error(e);setSyncUI("off",e.message||"Échec de synchronisation");return false}}
+async function deleteCloudItem(id){if(!cloud||!currentUser)return false;const item=state.items.find(i=>String(i.id)===String(id));const {error}=await cloud.from("vinted_items").delete().eq("id",id).eq("user_id",currentUser.id);if(error)throw error;if(item?.photo&&!item.photo.startsWith("data:")&&!item.photo.startsWith("http")){try{await cloud.storage.from("vinted-images").remove([item.photo])}catch(e){}}state.items=state.items.filter(i=>String(i.id)!==String(id));cacheLocal();renderAll();return true}
+function subscribeRealtime(){if(!cloud||!currentUser)return;if(realtime)cloud.removeChannel(realtime);realtime=cloud.channel("vinted-items-sync").on("postgres_changes",{event:"*",schema:"public",table:"vinted_items",filter:`user_id=eq.${currentUser.id}`},payload=>{if(payload.eventType==="DELETE"){state.items=state.items.filter(i=>String(i.id)!==String(payload.old.id))}else{const incoming=dbToItem(payload.new),idx=state.items.findIndex(i=>String(i.id)===String(incoming.id));if(idx<0)state.items.push(incoming);else if(incoming.updatedAt>=Number(state.items[idx].updatedAt||0))state.items[idx]=incoming}cacheLocal();renderAll();refreshPhotoUrls();setSyncUI("ok","Mise à jour en temps réel reçue.")}).subscribe();}
+
+function normalizeInvestment(i){
+  return {...i,id:String(i.id||makeId()),name:String(i.name||"Lot sans nom").trim(),investedAmount:Number(i.investedAmount??i.invested_amount??0),articleCount:Number(i.articleCount??i.article_count??0),investmentDate:i.investmentDate||i.investment_date||new Date().toISOString().slice(0,10),note:String(i.note||""),categories:Array.isArray(i.categories)?i.categories.map(c=>({id:String(c.id||makeId()),category:String(c.category||"").trim(),quantity:Number(c.quantity||0)})).filter(c=>c.category&&c.quantity>0):[],updatedAt:Number(i.updatedAt||Date.now())};
+}
+async function loadInvestmentsCloud(){
+  if(!cloud||!currentUser)return false;
+  const {data,error}=await cloud.from("vinted_investments").select("*").eq("user_id",currentUser.id).order("investment_date",{ascending:false});
+  if(error)throw error;
+  let invs=(data||[]).map(normalizeInvestment);
+  if(!invs.length){
+    const cached=loadCache();
+    if(cached.investments?.length){for(const inv of cached.investments)await saveInvestmentCloud(normalizeInvestment(inv));return await loadInvestmentsCloud(false)}
+    state.investments=[];return true
+  }
+  const ids=invs.map(i=>i.id);
+  const cr=await cloud.from("vinted_investment_categories").select("*").in("investment_id",ids);
+  if(cr.error)throw cr.error;
+  const cats=cr.data||[];
+  state.investments=invs.map(i=>({...i,categories:cats.filter(c=>String(c.investment_id)===String(i.id)).map(c=>({id:String(c.id),category:c.category,quantity:Number(c.quantity||0)}))}));
+  return true;
+}
+async function saveInvestmentCloud(inv){
+  if(!cloud||!currentUser)return false;
+  const payload={id:inv.id,user_id:currentUser.id,name:inv.name,invested_amount:Number(inv.investedAmount||0),article_count:Number(inv.articleCount||0),investment_date:inv.investmentDate||null,note:inv.note||null,updated_at:new Date().toISOString()};
+  const r=await cloud.from("vinted_investments").upsert(payload,{onConflict:"id"}).select().single();
+  if(r.error)throw r.error;
+  const del=await cloud.from("vinted_investment_categories").delete().eq("investment_id",inv.id);
+  if(del.error)throw del.error;
+  const rows=(inv.categories||[]).map(c=>({investment_id:inv.id,category:c.category,quantity:Number(c.quantity||0)}));
+  if(rows.length){const ins=await cloud.from("vinted_investment_categories").insert(rows);if(ins.error)throw ins.error}
+  return true;
+}
+async function deleteInvestmentCloud(id){
+  if(!cloud||!currentUser)return false;
+  const r=await cloud.from("vinted_investments").delete().eq("id",id).eq("user_id",currentUser.id);
+  if(r.error)throw r.error;
+  return true;
+}
+function investmentStats(inv){
+  const linked=state.items.filter(i=>String(i.investmentId||"")===String(inv.id));
+  const sold=linked.filter(isSold);
+  const recovered=sold.reduce((a,i)=>a+Math.max(0,Number(i.price||0)-Number(i.fees||0)),0);
+  const invested=Math.max(0,Number(inv.investedAmount||0));
+  return {linked,sold,invested,recovered,remaining:Math.max(0,invested-recovered),capitalRecovered:Math.min(invested,recovered),profit:Math.max(0,recovered-invested),recoveryPct:invested?Math.min(100,recovered/invested*100):0,profitabilityPct:invested?Math.max(0,(recovered-invested)/invested*100):0,status:invested>0&&recovered>=invested?"recovered":"active"};
+}
+function commit(){cacheLocal();renderAll()}
+function workspace(){$("#workspaceCode").textContent=currentUser?.id||"—";return currentUser?.id||""}
+
+function normalizeItem(i){
+  const title=String(i.title||i.name||"").trim();
+  return {...i,id:String(i.id||makeId()),title,price:Number(i.price ?? i.ask ?? i.soldPrice ?? 0),status:normalizeStatus(i.status),
+    buy:Number(i.buy||0),fees:Number(i.fees||0),updatedAt:Number(i.updatedAt||Date.now())}
+}
+function profitOf(i){return Number(i.price||0)-Number(i.buy||0)-Number(i.fees||0)}
+function dateOf(i){return i.soldDate||i.date||new Date().toISOString()}
+function isSold(i){return i.status==="sold"}
+function inPeriod(arr,p){
+  const n=new Date(),s=new Date(n);
+  if(p==="week")s.setDate(n.getDate()-6);
+  if(p==="month")s.setDate(n.getDate()-29);
+  if(p==="year")s.setDate(n.getDate()-364);
+  if(p==="all")return arr;
+  return arr.filter(i=>new Date(dateOf(i))>=s);
+}
+
+function navigate(view){
+  $$(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));
+  $$("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  window.scrollTo({top:0,behavior:"smooth"});renderAll();
+}
+$$("[data-view]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.view)));
+$$("[data-view-jump]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.viewJump)));
+
+function itemCard(i){
+  const p=profitOf(i);
+  return `<article class="item-card">
+    <div class="item-img">${i.photo?`<img src="${esc(i.photo)}" alt="">`:"<span class='placeholder'>◌</span>"}</div>
+    <div class="item-body"><div class="item-name" title="${esc(i.title)}">${esc(i.title||"Annonce sans nom")}</div>
+    <div class="item-meta">${[i.brand,i.size,i.category].filter(Boolean).map(esc).join(" · ")||"Annonce Vinted"}</div>
+    <div class="item-bottom"><span class="price">${money(i.price)}</span><span class="badge ${esc(i.status)}">${statusLabel(i.status)}</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:12px;color:var(--muted)">
+      <span>${i.buy?("Bénéfice "+money(p)):"Coût non renseigné"}</span><span class="inline-actions">${i.status==="sold"?`<button class="status-action sold" data-toggle-id="${esc(i.id)}">↩ Remettre en vente</button>`:`<button class="status-action" data-toggle-id="${esc(i.id)}">✓ Marquer vendu</button>`}<button class="ghost edit-item" data-id="${esc(i.id)}" style="padding:5px 8px">Modifier</button><button class="ghost delete-item" data-id="${esc(i.id)}" style="padding:5px 8px">×</button></span>
+    </div></div></article>`;
+}
+function renderCards(list,el){
+  if(!el)return;
+  el.innerHTML=list.length?list.map(itemCard).join(""):`<div class="empty" style="grid-column:1/-1">Aucune annonce pour le moment. Ajoute ta première capture Vinted.</div>`;
+  el.querySelectorAll(".delete-item").forEach(b=>b.addEventListener("click",()=>removeItem(b.dataset.id)));
+  el.querySelectorAll(".edit-item").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.id)));el.querySelectorAll("[data-toggle-id]").forEach(b=>b.addEventListener("click",()=>toggleSold(b.dataset.toggleId)));
+}
+function renderDashboard(){
+  const active=state.items.filter(i=>i.status==="for_sale").length,draft=0,sold=state.items.filter(isSold).length;
+  const profit=state.items.filter(isSold).reduce((a,i)=>a+profitOf(i),0);
+  $("#statsCards").innerHTML=[
+    ["Annonces actives",active,"en vente","accent"],["Ventes",sold,"vendues","accent"],["Brouillons",draft,"à publier",""],["Bénéfice",money(profit),state.items.some(i=>i.buy)?"avec coûts renseignés":"coûts partiels",""]
+  ].map(c=>`<div class="stat ${c[3]}"><div class="stat-label">${c[0]}</div><div class="stat-value">${c[1]}</div><div class="stat-sub ${c[0]==="Brouillons"?"warn":""}">${c[2]}</div></div>`).join("");
+  const recent=[...state.items].sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0)).slice(0,4);renderCards(recent,$("#recentCards"));
+  drawLine("#dashChart",state.items,"month");drawDonut();
+}
+function drawLine(selector,list,p){
+  const el=$(selector);const data=inPeriod(list,p).filter(isSold).sort((a,b)=>new Date(dateOf(a))-new Date(dateOf(b)));
+  let vals=[];
+  if(p==="week"||p==="month"){
+    const count=p==="week"?7:10;
+    for(let k=count-1;k>=0;k--){const d=new Date();d.setDate(d.getDate()-k);const key=d.toISOString().slice(0,10);
+      vals.push({label:d.toLocaleDateString("fr-BE",{day:"2-digit",month:"short"}),v:data.filter(i=>dateOf(i).slice(0,10)===key).reduce((a,i)=>a+profitOf(i),0)})}
+  }else{
+    const count=p==="year"?12:Math.max(1,Math.min(12,data.length||1));
+    for(let k=count-1;k>=0;k--){const d=new Date();d.setMonth(d.getMonth()-k);const key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+      vals.push({label:d.toLocaleDateString("fr-BE",{month:"short"}),v:data.filter(i=>dateOf(i).slice(0,7)===key).reduce((a,i)=>a+profitOf(i),0)})}
+  }
+  const W=760,H=260,P=34,max=Math.max(1,...vals.map(x=>x.v)),min=Math.min(0,...vals.map(x=>x.v)),range=max-min||1;
+  const pts=vals.map((x,i)=>{const xx=P+i*(W-P*2)/Math.max(1,vals.length-1);const yy=H-P-(x.v-min)/range*(H-P*2);return[xx,yy]});
+  const line=pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const area=line+" L "+pts.at(-1)[0]+" "+(H-P)+" L "+pts[0][0]+" "+(H-P)+" Z";
+  const grid=[0,.25,.5,.75,1].map(t=>{const y=P+t*(H-P*2);return`<line class="chart-grid" x1="${P}" x2="${W-P}" y1="${y}" y2="${y}"/>`}).join("");
+  const labels=vals.map((x,i)=>i%Math.ceil(vals.length/7)===0?`<text class="axis" x="${pts[i][0]}" y="${H-7}" text-anchor="middle">${esc(x.label)}</text>`:"").join("");
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#16e0d0" stop-opacity=".28"/><stop offset="1" stop-color="#16e0d0" stop-opacity="0"/></linearGradient></defs>${grid}<path class="chart-area" d="${area}"/><path class="chart-line" d="${line}"/>${labels}</svg>`;
+}
+function drawDonut(){
+  const total=state.items.length||1,active=state.items.filter(i=>i.status==="for_sale").length,draft=0,sold=state.items.filter(isSold).length;
+  const vals=[{n:"En vente",v:active,c:"#16e0d0"},{n:"Brouillons",v:draft,c:"#ffad4d"},{n:"Vendues",v:sold,c:"#4aa8ff"}].filter(x=>x.v);
+  let acc=0,parts=vals.map(x=>{const a=acc;acc+=x.v/total*360;return`${x.c} ${a}deg ${acc}deg`}).join(",");
+  if(!parts)parts="#253034 0deg 360deg";
+  $("#listingDonut").innerHTML=`<div class="donut" style="background:conic-gradient(${parts})"></div><div class="legend">${vals.map(x=>`<div class="legend-row"><span class="dot" style="background:${x.c}"></span>${x.n} ${Math.round(x.v/total*100)}%</div>`).join("")||"<div class='legend-row'>Aucune donnée</div>"}</div>`;
+}
+function renderListings(){
+  const q=($("#listingSearch")?.value||"").toLowerCase();
+  const arr=state.items.filter(i=>i.status===activeCategory && (`${i.title} ${i.description||""}`.toLowerCase().includes(q)));
+  $("#countForSale").textContent=state.items.filter(i=>i.status==="for_sale").length?`(${state.items.filter(i=>i.status==="for_sale").length})`:"";
+  $("#countSold").textContent=state.items.filter(i=>i.status==="sold").length?`(${state.items.filter(i=>i.status==="sold").length})`:"";
+  renderCards(arr,$("#listingCards"));
+}
+function renderStats(){
+  const arr=inPeriod(state.items,period),sold=arr.filter(isSold),revenue=sold.reduce((a,i)=>a+Number(i.price||0),0),profit=sold.reduce((a,i)=>a+profitOf(i),0),cost=sold.reduce((a,i)=>a+Number(i.buy||0),0);
+  $("#periodStats").innerHTML=[["Bénéfice",money(profit)],["CA",money(revenue)],["Ventes",sold.length+" pièces"],["ROI",cost?(profit/cost*100).toFixed(1)+"%":"—"]]
+    .map(x=>`<div class="stat"><div class="stat-label">${x[0]}</div><div class="stat-value">${x[1]}</div></div>`).join("");
+  drawLine("#statsChart",state.items,period);
+  const groups=[...sold].sort((a,b)=>profitOf(b)-profitOf(a)).slice(0,6);
+  $("#topItems").innerHTML=groups.map((g,idx)=>`<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)"><span>${idx+1}. ${esc(g.title||"Sans nom")}</span><strong style="color:var(--green)">${money(profitOf(g))}</strong></div>`).join("")||"<div class='empty'>Pas encore de ventes sur cette période.</div>";
+  const recent=sold.slice(-12),max=Math.max(1,...recent.map(i=>Number(i.price||0)));
+  $("#salesBars").innerHTML=recent.length?recent.map(i=>`<div title="${esc(i.title)}" style="flex:1;max-width:50px;height:${Math.max(8,Number(i.price||0)/max*190)}px;background:linear-gradient(180deg,var(--cyan),#0e5753);border-radius:8px 8px 3px 3px"></div>`).join(""):"<div class='empty' style='width:100%'>Pas encore de ventes.</div>";
+}
+function calc(){
+  const q=+$("#rQty").value,c=+$("#rCost").value,s=+$("#rSell").value,rate=+$("#rSold").value/100;
+  $("#vQty").textContent=q;$("#vCost").textContent=money(c);$("#vSell").textContent=money(s);$("#vSold").textContent=Math.round(rate*100)+"%";
+  ["#rQty","#rCost","#rSell","#rSold"].forEach(x=>{const el=$(x),v=+el.value,min=+el.min,max=+el.max;el.style.setProperty("--fill",((v-min)/(max-min)*100)+"%")});
+  const invest=q*c,revenue=q*rate*s,profit=revenue-invest,margin=revenue?profit/revenue*100:0,roi=invest?profit/invest*100:0,be=s?Math.ceil(invest/s):0;
+  $("#calcInvestment").textContent=money(invest);$("#calcRevenue").textContent=money(revenue);$("#calcProfit").textContent=money(profit);$("#calcMargin").textContent=margin.toFixed(1)+"%";$("#calcRoi").textContent=roi.toFixed(1)+"%";$("#calcBreakEven").textContent=be+" pièce"+(be>1?"s":"");$("#profitBox").classList.toggle("negative",profit<0);
+}
+["rQty","rCost","rSell","rSold"].forEach(id=>$("#"+id).addEventListener("input",calc));
+function updateGoal(){
+  const target=Math.max(0,+$("#goalTarget").value||0),profit=state.items.filter(isSold).reduce((a,i)=>a+profitOf(i),0),pct=target?Math.min(100,Math.max(0,profit/target*100)):0;
+  $("#goalCurrent").value=money(profit);$("#goalPct").textContent=pct.toFixed(0)+"%";$("#goalBar").style.width=pct+"%";
+  state.goalTarget=target;cacheLocal();
+}
+$("#goalTarget").value=state.goalTarget||500;$("#goalTarget").addEventListener("input",updateGoal);
+
+function openModal(edit){
+  editingId=edit?String(edit.id):null;currentPhoto=edit?.photo||"";
+  $("#modalTitle").textContent=edit?"Modifier l'annonce":"Nouvelle annonce";
+  $("#fName").value=edit?.title||"";$("#fPrice").value=edit?.price??"";$("#fStatus").value=normalizeStatus(edit?.status);$("#fBrand").value=edit?.brand||"";$("#fSize").value=edit?.size||"";$("#fCategory").value=edit?.category||"";
+  $("#fCondition").value=edit?.condition||"";$("#fDescription").value=edit?.description||"";$("#fBuy").value=edit?.buy??"";$("#fFees").value=edit?.fees??"";renderInvestmentOptions();$("#fInvestment").value=edit?.investmentId||"";
+  $("#photoPreview").innerHTML=currentPhoto?`<img src="${esc(currentPhoto)}" alt="">`:"<span class='placeholder'>＋</span>";
+  resetDetectedUI();$("#listingModal").classList.add("open");document.body.style.overflow="hidden";
+}
+function closeModal(){editingId=null;currentPhoto="";$("#listingModal").classList.remove("open");document.body.style.overflow="";resetFormFields()}
+function openEdit(id){const i=state.items.find(x=>String(x.id)===String(id));if(i)openModal(i)}
+function resetFormFields(){
+  ["fName","fPrice","fBrand","fSize","fCategory","fCondition","fDescription","fBuy","fFees"].forEach(id=>$("#"+id).value="");$("#fStatus").value="for_sale";renderInvestmentOptions();$("#fInvestment").value="";
+  $("#photoPreview").innerHTML="<span class='placeholder'>＋</span>";currentPhoto="";$("#photoInput").value="";resetDetectedUI();
+}
+function resetDetectedUI(){
+  detected={photo:"",name:"",price:null,confidence:0,warning:""};detectedDetails={brand:"",size:"",category:"",condition:"",description:""};$("#importResult").hidden=true;$("#autoPhotoPreview").innerHTML="";
+  $("#detectedName").textContent="—";$("#detectedPrice").textContent="—";$("#detectedWarning").textContent="";$("#importConfidence").textContent="Analyse";
+  $("#ocrStatus").textContent="";
+}
+$("#addTopBtn").addEventListener("click",()=>openModal(null));$("#addListingBtn").addEventListener("click",()=>openModal(null));$("#closeModal").addEventListener("click",closeModal);
+$("#listingModal").addEventListener("click",e=>{if(e.target.id==="listingModal")closeModal()});
+$("#manualPhotoBtn").addEventListener("click",()=>$("#photoInput").click());
+$("#photoInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(f){currentPhoto=await makeSquareFromFile(f);$("#photoPreview").innerHTML=`<img src="${esc(currentPhoto)}" alt="">`}e.target.value=""});
+$("#resetForm").addEventListener("click",()=>{editingId=null;resetFormFields()});
+$("#saveItem").addEventListener("click",()=>{
+  const title=$("#fName").value.trim();if(!title){toast("Le nom de l'article est nécessaire");return}
+  const t=now(),item={id:editingId||makeId(),title,price:Number($("#fPrice").value||0),status:$("#fStatus").value,brand:$("#fBrand").value.trim(),size:$("#fSize").value.trim(),category:$("#fCategory").value.trim(),
+    condition:$("#fCondition").value.trim(),description:$("#fDescription").value.trim(),investmentId:$("#fInvestment").value||"",buy:Number($("#fBuy").value||0),fees:Number($("#fFees").value||0),
+    photo:currentPhoto,date:editingId?(state.items.find(i=>i.id===editingId)?.date||new Date().toISOString()):new Date().toISOString(),
+    soldDate:$("#fStatus").value==="sold"?(state.items.find(i=>i.id===editingId)?.soldDate||new Date().toISOString()):null,updatedAt:t};
+  const idx=state.items.findIndex(i=>i.id===item.id);
+  const wasEdit=Boolean(editingId);
+  if(idx>=0)state.items[idx]=item;else state.items.push(item);
+  commit();closeModal();if(currentUser)saveCloudItem(item);toast(wasEdit?"Annonce modifiée":"Annonce ajoutée");
+});
+async function toggleSold(id){const i=state.items.find(x=>String(x.id)===String(id));if(!i)return;i.status=i.status==="sold"?"for_sale":"sold";i.soldDate=i.status==="sold"?new Date().toISOString():null;i.updatedAt=Date.now();commit();if(currentUser)await saveCloudItem(i);toast(i.status==="sold"?"Article marqué comme vendu":"Article remis en vente")}
+function removeItem(id){
+  if(!confirm("Supprimer cette annonce ?"))return;if(currentUser){deleteCloudItem(id).then(()=>toast("Annonce supprimée")).catch(e=>toast("Erreur cloud : "+e.message))}else{state.items=state.items.filter(i=>String(i.id)!==String(id));commit();toast("Annonce supprimée")}
+}
+$("#listingSearch").addEventListener("input",renderListings);
+$("#globalSearch").addEventListener("input",()=>{const q=$("#globalSearch").value.trim();if(q){navigate("listings");$("#listingSearch").value=q;renderListings()}});
+$("#periods").addEventListener("click",e=>{const b=e.target.closest("button[data-period]");if(!b)return;period=b.dataset.period;$$("[data-period]").forEach(x=>x.classList.toggle("active",x===b));renderStats()});
+$("#exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="vinted-manager-v7.2.json";a.click();URL.revokeObjectURL(url);toast("Données exportées")});
+$("#clearBtn").addEventListener("click",async()=>{if(!confirm("Supprimer toutes les annonces et objectifs ? Cette action est irréversible."))return;if(currentUser){const {error}=await cloud.from("vinted_items").delete().eq("user_id",currentUser.id);if(error){toast("Erreur cloud : "+error.message);return}}state.items=[];state.goalTarget=0;commit();toast("Données supprimées")});
+$("#resyncBtn").addEventListener("click",async()=>{if(currentUser){await loadCloud(false);toast("Données actualisées")}else{state=loadCache();state.items=(state.items||[]).map(normalizeItem);state.investments=(state.investments||[]).map(normalizeInvestment);renderAll();toast("Données locales actualisées")}});
+$("#addInvestmentBtn").addEventListener("click",()=>openInvestmentModal());
+$("#closeInvestmentModal").addEventListener("click",closeInvestmentModal);
+$("#investmentModal").addEventListener("click",e=>{if(e.target.id==="investmentModal")closeInvestmentModal()});
+$("#addInvestmentCategory").addEventListener("click",()=>categoryRow());
+$("#resetInvestmentForm").addEventListener("click",()=>openInvestmentModal());
+$("#saveInvestment").addEventListener("click",saveInvestment);
+
+
+$("#categoryTabs").addEventListener("click",e=>{const b=e.target.closest("button[data-category]");if(!b)return;activeCategory=b.dataset.category;$$('#categoryTabs button').forEach(x=>x.classList.toggle('active',x===b));renderListings();});
+function setAuthMode(mode){authMode=mode;$("#authLoginTab").classList.toggle("active",mode==="login");$("#authSignupTab").classList.toggle("active",mode==="signup");$("#authTitle").textContent=mode==="login"?"Connexion":"Créer un compte";$("#authSubmit").textContent=mode==="login"?"Se connecter":"Créer mon compte";$("#authError").textContent="";}
+
+$("#saveCloudConfig").addEventListener("click",async()=>{const url=$("#cfgUrl").value.trim().replace(/\/$/,""),key=$("#cfgKey").value.trim();if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(url)){$("#authError").textContent="L'URL doit ressembler à https://xxxxxxxx.supabase.co";return}if(key.length<20){$("#authError").textContent="La clé Publishable semble incomplète.";return}$("#authError").style.color="";$("#authError").textContent="Test de connexion à Supabase…";const sdkReady=await ensureSupabaseSdk();if(!sdkReady){$("#authError").textContent="Impossible de charger le module Supabase. Vérifie Internet.";return}try{const testClient=window.supabase.createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});const {error}=await testClient.auth.getSession();if(error)throw error;localStorage.setItem(SUPA_CFG_KEY,JSON.stringify({url,key}));cloud=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});currentUser=null;$("#authError").style.color="var(--green)";$("#authError").textContent="Connexion réussie. Tu peux maintenant créer ton compte.";syncSetupUI();updateAuthUI();}catch(e){console.error(e);$("#authError").style.color="";const msg=e?.message||"connexion impossible";$("#authError").textContent=msg.includes("Failed to fetch")?"Supabase est inaccessible avec cette URL. Vérifie le Project URL dans Supabase → Settings → API.":"Erreur Supabase : "+msg;}});
+$("#resetCloudConfig").addEventListener("click",()=>{localStorage.removeItem(SUPA_CFG_KEY);cloud=null;currentUser=null;$("#cfgUrl").value="";$("#cfgKey").value="";$("#authError").style.color="";$("#authError").textContent="Configuration effacée. Recommence avec ton Project URL exact.";syncSetupUI();});
+$("#authLoginTab").addEventListener("click",()=>setAuthMode("login"));$("#authSignupTab").addEventListener("click",()=>setAuthMode("signup"));$("#authSubmit").addEventListener("click",async()=>{if(!cloud){$("#authError").textContent="Configuration cloud manquante.";return}const email=$("#authEmail").value.trim(),password=$("#authPassword").value;if(!email||password.length<6){$("#authError").textContent="Email valide + mot de passe d’au moins 6 caractères.";return}$("#authError").textContent="";const r=authMode==="login"?await cloud.auth.signInWithPassword({email,password}):await cloud.auth.signUp({email,password});if(r.error){$("#authError").textContent=r.error.message}else if(authMode==="signup"&&!r.data.session){$("#authError").style.color="var(--green)";$("#authError").textContent="Compte créé. Vérifie ton email si la confirmation est activée."}});
+$("#openAuthBtn").addEventListener("click",()=>showAuth(true));$("#signOutBtn").addEventListener("click",async()=>{if(cloud)await cloud.auth.signOut();});
+
+function preprocessCanvas(img,scale=2){
+  const c=document.createElement("canvas"),w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;c.width=Math.round(w*scale);c.height=Math.round(h*scale);
+  const ctx=c.getContext("2d");ctx.drawImage(img,0,0,c.width,c.height);let d=ctx.getImageData(0,0,c.width,c.height),p=d.data;
+  for(let i=0;i<p.length;i+=4){const g=.299*p[i]+.587*p[i+1]+.114*p[i+2];const v=Math.max(0,Math.min(255,(g-128)*1.55+128));p[i]=p[i+1]=p[i+2]=v}
+  ctx.putImageData(d,0,0);return c;
+}
+function canvasData(c){
+  const webp=c.toDataURL("image/webp",.84);
+  return webp.startsWith("data:image/webp")?webp:c.toDataURL("image/jpeg",.88);
+}
+function fitIntoSquare(source,opts={}){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();img.onload=()=>{
+      const size=900,c=document.createElement("canvas");c.width=size;c.height=size;const ctx=c.getContext("2d");
+      ctx.fillStyle=opts.bg||"#111719";ctx.fillRect(0,0,size,size);
+      const ratio=Math.min(size/img.naturalWidth,size/img.naturalHeight),w=img.naturalWidth*ratio,h=img.naturalHeight*ratio,x=(size-w)/2,y=(size-h)/2;
+      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(img,x,y,w,h);resolve(canvasData(c));
+    };img.onerror=reject;img.src=source;
+  });
+}
+async function makeSquareFromFile(file){
+  const raw=await fileToData(file);return await fitIntoSquare(raw,{bg:"#101719"});
+}
+function fileToData(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+function imageFromSource(src){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=src})}
+
+async function extractGallerySquare(file){
+  const raw=await fileToData(file),img=await imageFromSource(raw),c=document.createElement("canvas");
+  const w=img.naturalWidth,h=img.naturalHeight;
+  const top=Math.round(h*.035),bottom=Math.round(h*.665),cropH=Math.max(1,bottom-top);
+  // Keep the full gallery. The result is then fitted into a true square without cutting the article.
+  c.width=w;c.height=cropH;const ctx=c.getContext("2d");ctx.drawImage(img,0,top,w,cropH,0,0,w,cropH);
+  return await fitIntoSquare(c.toDataURL("image/jpeg",.92),{bg:"#101719"});
+}
+
+function cleanLine(s){
+  return String(s||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim().replace(/^[•·|:;,\-–—]+/,"").trim();
+}
+function uiNoise(t){
+  const x=cleanLine(t).toLowerCase();
+  if(!x)return true;
+  if(/^(boost|boosté|booster|partager|voir les statistiques|statistiques|sous-total|pour l.?acheteur|incl\.?|incl)$/.test(x))return true;
+  if(/(?:sous-total|acheteur|partager|statistique|booster|boosté|répondre à chatgpt|vinted|wifi|batterie)/.test(x))return true;
+  if(/^(?:\d{1,2}:\d{2}|\d{1,3}(?:[.,]\d{1,2})?\s*€)$/.test(x))return true;
+  return false;
+}
+function priceCandidates(lines){
+  const out=[];for(const l of lines){const m=cleanLine(l.text).match(/(\d{1,3}(?:[.,]\d{1,2})?)\s*€/);if(m)out.push({value:Number(m[1].replace(",",".")),y:l.y,conf:l.conf||0,text:cleanLine(l.text)})}
+  return out;
+}
+function titleFromLowerCrop(lines,priceY,h){
+  const usable=lines.map(l=>({...l,text:cleanLine(l.text)})).filter(l=>l.text&&!uiNoise(l.text)&&l.y<priceY-3);
+  if(!usable.length)return {title:"",confidence:0};
+  const region=usable.filter(l=>l.y>h*.02 && l.y<priceY);
+  const ranked=region.map(l=>{
+    let score=l.conf||0;
+    if(/[A-Za-zÀ-ÿ]{3,}/.test(l.text))score+=22;
+    if(l.text.length>=8&&l.text.length<=78)score+=15;
+    if(/(?:nike|adidas|superdry|air force|ralph|carhartt|lacoste|north face|puma|jordan|tommy|hollister|burberry|champion|patagonia|vans|reebok|new balance)/i.test(l.text))score+=18;
+    if(/^[\d€.,\s]+$/.test(l.text))score-=40;
+    return {...l,score};
+  }).sort((a,b)=>b.score-a.score);
+  if(!ranked.length)return {title:"",confidence:0};
+  const primary=ranked[0];
+  const nearby=usable.filter(l=>l!==primary && l.y>primary.y && l.y-primary.y<Math.max(55,primary.h*2.6))
+    .sort((a,b)=>a.y-b.y)[0];
+  let title=primary.text,conf=primary.conf||0;
+  if(nearby && !uiNoise(nearby.text) && nearby.y<priceY){title+=" "+nearby.text;conf=Math.min(conf,nearby.conf||conf)}
+  title=title.replace(/\b(?:incl\.?|sous-total).*/i,"").trim();
+  return {title,confidence:Math.min(100,Math.max(0,conf+25))};
+}
+async function analyzeScreenshot(file){
+  resetDetectedUI();$("#importResult").hidden=false;$("#importConfidence").textContent="Analyse…";$("#ocrStatus").textContent="Lecture de la capture…";
+  try{
+    const [photo,Tess]=await Promise.all([extractGallerySquare(file),ensureTesseract()]);
+    detected.photo=photo;
+    const raw=await fileToData(file),img=await imageFromSource(raw),w=img.naturalWidth,h=img.naturalHeight;
+    const c=document.createElement("canvas");c.width=w*2;c.height=h*2;
+    const ctx=c.getContext("2d");ctx.drawImage(img,0,0,c.width,c.height);
+    const proc=preprocessCanvas(c,1);
+    const ocr=await Tess.recognize(proc,"fra+eng");
+    const lines=(ocr.data?.lines||[]).map(l=>({text:cleanLine(l.text),x:(l.bbox?.x0||0)/2,y:(l.bbox?.y0||0)/2,w:((l.bbox?.x1||0)-(l.bbox?.x0||0))/2,h:((l.bbox?.y1||0)-(l.bbox?.y0||0))/2,conf:l.confidence||0})).filter(l=>l.text);
+    const prices=priceCandidates(lines).sort((a,b)=>a.y-b.y);
+    const primaryPrice=prices.find(x=>x.y>h*.45)||prices[prices.length-1]||null;
+    detected.price=primaryPrice?.value??null;
+    const titleCandidates=lines.filter(l=>!uiNoise(l.text)&&l.text.length>=3).filter(l=>l.y>h*.45&&(!primaryPrice||l.y<primaryPrice.y+80));
+    const titleRanked=titleCandidates.map(l=>{let score=l.conf||0;if(/[A-Za-zÀ-ÿ]{3,}/.test(l.text))score+=15;if(l.text.length>=8&&l.text.length<=90)score+=18;if(/(?:nike|adidas|superdry|air force|ralph|carhartt|lacoste|north face|puma|jordan|tommy|hollister|burberry|champion|patagonia|vans|reebok|new balance|dickies|levis|levi's|zara|uniqlo)/i.test(l.text))score+=20;return {...l,score}}).sort((a,b)=>b.score-a.score);
+    detected.name=titleRanked[0]?.text||"";
+    const text=lines.map(l=>l.text).join(" | ");
+    const lower=text.toLowerCase();
+    const brandMatch=text.match(/(?:marque|brand)\s*[:\-]?\s*([A-Za-zÀ-ÿ0-9' -]{2,40})/i);
+    const sizeMatch=text.match(/(?:taille|size)\s*[:\-]?\s*([A-Za-z0-9À-ÿ.\/-]{1,12})/i);
+    const conditionMatch=text.match(/(?:état|condition)\s*[:\-]?\s*([A-Za-zÀ-ÿ0-9' -]{3,50})/i);
+    const categoryMatch=text.match(/(?:catégorie|category)\s*[:\-]?\s*([A-Za-zÀ-ÿ0-9'&\/ -]{3,50})/i);
+    detectedDetails.brand=cleanLine(brandMatch?.[1]||"");
+    detectedDetails.size=cleanLine(sizeMatch?.[1]||"");
+    detectedDetails.condition=cleanLine(conditionMatch?.[1]||"");
+    detectedDetails.category=cleanLine(categoryMatch?.[1]||"");
+    const descLines=lines.filter(l=>l.y>h*.55&&!uiNoise(l.text)&&(!primaryPrice||Math.abs(l.y-primaryPrice.y)>30)).map(l=>l.text).filter(t=>t!==detected.name&&!/^\d+(?:[.,]\d+)?\s*€$/.test(t));
+    detectedDetails.description=descLines.slice(0,5).join(" ");
+    const confidenceParts=[detected.name?70:0,detected.price!=null?70:0,detectedDetails.brand?30:0,detectedDetails.size?20:0,detectedDetails.category?20:0,detectedDetails.condition?20:0];
+    detected.confidence=Math.round(confidenceParts.reduce((a,b)=>a+b,0)/Math.max(1,confidenceParts.length));
+    detected.warning=(!detected.name||detected.price==null)?"Une information principale n'a pas été identifiée avec assez de confiance. Vérifie-la avant d'enregistrer.":"";
+    $("#autoPhotoPreview").innerHTML=`<img src="${esc(photo)}" alt="">`;
+    $("#detectedName").textContent=detected.name||"Nom non identifié";
+    $("#detectedPrice").textContent=detected.price!=null?money(detected.price):"Prix non identifié";
+    $("#detectedWarning").textContent=[detected.warning,detectedDetails.brand&&`Marque: ${detectedDetails.brand}`,detectedDetails.size&&`Taille: ${detectedDetails.size}`,detectedDetails.category&&`Catégorie: ${detectedDetails.category}`,detectedDetails.condition&&`État: ${detectedDetails.condition}`].filter(Boolean).join(" · ");
+    $("#importConfidence").textContent=detected.confidence>=70?"Bonne détection":detected.confidence>=45?"À vérifier":"Détection faible";
+    $("#ocrStatus").textContent="Analyse terminée. Les champs détectés sont appliqués uniquement s'ils ont été réellement lus.";
+  }catch(e){
+    console.error(e);detected.warning="OCR indisponible pour cette capture.";
+    $("#ocrStatus").textContent="Analyse impossible. Tu peux remplir la fiche manuellement sans perdre la capture.";
+    $("#importConfidence").textContent="À vérifier";
+  }
+}
+async function ensureTesseract(){
+  if(window.Tesseract)return window.Tesseract;
+  const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";document.head.appendChild(s);
+  await new Promise((res,rej)=>{s.onload=res;s.onerror=rej});return window.Tesseract;
+}
+$("#applyDetectedBtn").addEventListener("click",()=>{
+  if(detected.name)$("#fName").value=detected.name;if(detected.price!=null)$("#fPrice").value=detected.price;
+  if(detectedDetails.brand)$("#fBrand").value=detectedDetails.brand;if(detectedDetails.size)$("#fSize").value=detectedDetails.size;if(detectedDetails.category)$("#fCategory").value=detectedDetails.category;
+  if(detectedDetails.condition)$("#fCondition").value=detectedDetails.condition;
+  if(detectedDetails.description)$("#fDescription").value=detectedDetails.description;
+  currentPhoto=detected.photo||currentPhoto;
+  $("#photoPreview").innerHTML=currentPhoto?`<img src="${esc(currentPhoto)}" alt="">`:"<span class='placeholder'>＋</span>";
+  toast("Informations détectées appliquées à la fiche");
+});
+$("#replaceCaptureBtn").addEventListener("click",()=>{$("#screenInput").click()});
+$("#screenInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(f)await analyzeScreenshot(f);e.target.value=""});
+const dz=$("#dropZone");
+["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag")}));
+["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag")}));
+dz.addEventListener("drop",async e=>{const f=e.dataTransfer.files?.[0];if(f)await analyzeScreenshot(f)});
+
+async function migrateLegacyImages(){
+  let changed=false;
+  for(const i of state.items){
+    if(i.photo && i._square!==true){
+      try{i.photo=await fitIntoSquare(i.photo,{bg:"#101719"});i._square=true;i.updatedAt=now();changed=true}catch(e){}
+    }
+  }
+  if(changed){cacheLocal();renderAll()}
+}
+
+function renderInvestmentOptions(){
+  const s=$("#fInvestment");if(!s)return;
+  const current=s.value;
+  s.innerHTML='<option value="">Aucun lot</option>'+state.investments.map(i=>`<option value="${esc(i.id)}">${esc(i.name)} — ${money(i.investedAmount)}</option>`).join("");
+  if(state.investments.some(i=>String(i.id)===String(current)))s.value=current;
+}
+function renderInvestments(){
+  const stats=state.investments.map(investmentStats);
+  const invested=stats.reduce((a,x)=>a+x.invested,0),recovered=stats.reduce((a,x)=>a+x.capitalRecovered,0),remaining=stats.reduce((a,x)=>a+x.remaining,0),profit=stats.reduce((a,x)=>a+x.profit,0);
+  const active=stats.filter(x=>x.status==="active").length,recoveredLots=stats.filter(x=>x.status==="recovered").length;
+  $("#financialCards").innerHTML=[
+    ["Total investi",money(invested),"Capital engagé",""],
+    ["Capital récupéré",money(recovered),invested?((recovered/invested)*100).toFixed(0)+"% du capital":"—","accent"],
+    ["Capital restant",money(remaining),active+" lot"+(active>1?"s":"")+" actif"+(active>1?"s":""),"warn"],
+    ["Bénéfice",money(profit),recoveredLots+" lot"+(recoveredLots>1?"s":"")+" entièrement récupéré"+(recoveredLots>1?"s":""),"accent"]
+  ].map(c=>`<div class="stat ${c[3]}"><div class="stat-label">${c[0]}</div><div class="stat-value">${c[1]}</div><div class="stat-sub ${c[3]==="warn"?"warn":""}">${c[2]}</div></div>`).join("");
+  $("#investmentCount").textContent=`${state.investments.length} lot${state.investments.length>1?"s":""}`;
+  $("#investmentCards").innerHTML=state.investments.length?state.investments.map(inv=>{
+    const x=investmentStats(inv),cats=(inv.categories||[]).map(c=>`${esc(c.category)} × ${c.quantity}`).join(" · ")||"Catégories non renseignées";
+    return `<article class="investment-card">
+      <div class="investment-card-head"><div><div class="investment-name">${esc(inv.name)}</div><div class="investment-meta">${esc(inv.investmentDate||"Date inconnue")} · ${Number(inv.articleCount||0)} article${Number(inv.articleCount||0)>1?"s":""}</div></div><span class="investment-status ${x.status}">${x.status==="recovered"?"Capital récupéré":"En cours"}</span></div>
+      <div class="investment-meta" style="margin-top:10px">${cats}</div>
+      <div class="progress"><div style="width:${x.recoveryPct.toFixed(1)}%"></div></div>
+      <div class="investment-meta" style="margin-top:6px">Récupération ${x.recoveryPct.toFixed(0)}% · ${x.linked.length} article${x.linked.length>1?"s":""} lié${x.linked.length>1?"s":""} · ${x.sold.length} vendu${x.sold.length>1?"s":""}</div>
+      <div class="investment-kpis">
+        <div class="investment-kpi"><small>Investi</small><strong>${money(x.invested)}</strong></div>
+        <div class="investment-kpi"><small>Récupéré</small><strong>${money(x.recovered)}</strong></div>
+        <div class="investment-kpi"><small>Restant</small><strong>${money(x.remaining)}</strong></div>
+        <div class="investment-kpi"><small>Bénéfice</small><strong style="color:var(--green)">${money(x.profit)}</strong></div>
+      </div>
+      ${x.status==="recovered"?'<div class="notice" style="margin-top:12px">✅ Capital initial récupéré. Les ventes nettes supplémentaires sont comptées comme bénéfice.</div>':""}
+      ${inv.note?`<div class="investment-meta" style="margin-top:10px">${esc(inv.note)}</div>`:""}
+      <div class="investment-actions"><button class="ghost edit-investment" data-id="${esc(inv.id)}">Modifier</button><button class="danger delete-investment" data-id="${esc(inv.id)}">Supprimer</button></div>
+    </article>`;
+  }).join(""):`<div class="empty" style="grid-column:1/-1">Aucun investissement. Crée ton premier lot d'achat, même si les articles ne sont pas encore dans le stock.</div>`;
+  $("#investmentCards").querySelectorAll(".edit-investment").forEach(b=>b.addEventListener("click",()=>openInvestmentEdit(b.dataset.id)));
+  $("#investmentCards").querySelectorAll(".delete-investment").forEach(b=>b.addEventListener("click",()=>removeInvestment(b.dataset.id)));
+  renderInvestmentOptions();
+}
+function categoryRow(category="",quantity=""){
+  const row=document.createElement("div");row.className="category-row";
+  row.innerHTML=`<input class="i-cat-name" placeholder="Ex. Polaires" value="${esc(category)}"><input class="i-cat-qty" type="number" min="1" step="1" placeholder="Qté" value="${quantity?esc(quantity):""}"><button class="ghost remove-cat" type="button">×</button>`;
+  row.querySelector(".remove-cat").addEventListener("click",()=>{row.remove();});
+  $("#investmentCategories").appendChild(row);
+}
+function openInvestmentModal(edit=null){
+  $("#investmentModalTitle").textContent=edit?"Modifier l'investissement":"Nouvel investissement";
+  $("#iName").value=edit?.name||"";$("#iDate").value=edit?.investmentDate||new Date().toISOString().slice(0,10);$("#iAmount").value=edit?.investedAmount??"";$("#iCount").value=edit?.articleCount??"";$("#iNote").value=edit?.note||"";
+  $("#investmentModal").dataset.editId=edit?.id||"";$("#investmentCategories").innerHTML="";
+  (edit?.categories?.length?edit.categories:[{category:"",quantity:""}]).forEach(c=>categoryRow(c.category,c.quantity));
+  $("#investmentModal").classList.add("open");document.body.style.overflow="hidden";
+}
+function closeInvestmentModal(){$("#investmentModal").classList.remove("open");$("#investmentModal").dataset.editId="";document.body.style.overflow="";}
+function openInvestmentEdit(id){const inv=state.investments.find(i=>String(i.id)===String(id));if(inv)openInvestmentModal(inv)}
+async function saveInvestment(){
+  const name=$("#iName").value.trim();if(!name){toast("Le nom du lot est nécessaire");return}
+  const id=$("#investmentModal").dataset.editId||makeId();
+  const categories=Array.from(document.querySelectorAll("#investmentCategories .category-row")).map(r=>({id:makeId(),category:r.querySelector(".i-cat-name").value.trim(),quantity:Number(r.querySelector(".i-cat-qty").value||0)})).filter(c=>c.category&&c.quantity>0);
+  const inv=normalizeInvestment({id,name,investedAmount:Number($("#iAmount").value||0),articleCount:Number($("#iCount").value||0),investmentDate:$("#iDate").value||new Date().toISOString().slice(0,10),note:$("#iNote").value.trim(),categories,updatedAt:Date.now()});
+  const idx=state.investments.findIndex(x=>String(x.id)===String(id));if(idx>=0)state.investments[idx]=inv;else state.investments.unshift(inv);
+  cacheLocal();renderAll();closeInvestmentModal();toast(idx>=0?"Investissement modifié":"Investissement ajouté");
+  if(currentUser){try{await saveInvestmentCloud(inv);setSyncUI("ok","Investissement enregistré dans la base centrale.");}catch(e){setSyncUI("off","Investissement conservé localement. Migration SQL V7.2 à vérifier.");toast("Cloud investissements indisponible");}}
+}
+async function removeInvestment(id){
+  const inv=state.investments.find(i=>String(i.id)===String(id));if(!inv)return;
+  if(!confirm(`Supprimer l'investissement « ${inv.name} » ? Les articles liés resteront en stock mais ne seront plus rattachés à ce lot.`))return;
+  const affected=state.items.filter(i=>String(i.investmentId)===String(id));
+  affected.forEach(i=>i.investmentId="");
+  state.investments=state.investments.filter(i=>String(i.id)!==String(id));cacheLocal();renderAll();
+  if(currentUser){try{for(const i of affected)await saveCloudItem(i);await deleteInvestmentCloud(id);}catch(e){toast("Suppression cloud impossible");}}
+  toast("Investissement supprimé");
+}
+function renderAll(){
+  renderDashboard();renderListings();renderStats();renderInvestments();calc();
+  $("#goalTarget").value=state.goalTarget||0;updateGoalUI();
+}
+function updateGoalUI(){
+  const target=Math.max(0,+state.goalTarget||0),profit=state.items.filter(isSold).reduce((a,i)=>a+profitOf(i),0),pct=target?Math.min(100,Math.max(0,profit/target*100)):0;
+  $("#goalCurrent").value=money(profit);$("#goalPct").textContent=pct.toFixed(0)+"%";$("#goalBar").style.width=pct+"%";
+}
+
+state=loadCache();state.items=(state.items||[]).map(normalizeItem);state.investments=(state.investments||[]).map(normalizeInvestment);renderAll();initCloud().then(()=>{workspace();if(currentUser)subscribeRealtime();}).catch(e=>{console.error(e);setSyncUI("off","Configure le cloud dans la version V8.")});
+
+})();
+</script>
+</body>
+</html>
